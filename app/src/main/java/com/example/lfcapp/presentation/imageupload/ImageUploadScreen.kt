@@ -64,10 +64,6 @@ fun ImageUploadScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val capturedPhoto by viewModel.capturedPhoto.collectAsStateWithLifecycle()
 
-    var unitId by rememberSaveable { mutableStateOf("101261") }
-    var printerName by rememberSaveable { mutableStateOf("test123") }
-    var userData by rememberSaveable { mutableStateOf("BP STOCKHOLM HUB SESTH") }
-
     // The camera is only opened on demand, so it isn't streaming while the user fills in the form.
     var isCameraOpen by rememberSaveable { mutableStateOf(false) }
     var isCapturing by remember { mutableStateOf(false) }
@@ -127,7 +123,6 @@ fun ImageUploadScreen(
     }
 
     val isUploading = uiState is ImageUploadUiState.Loading
-    val formComplete = unitId.isNotBlank() && printerName.isNotBlank() && userData.isNotBlank()
 
     Column(
         modifier = modifier
@@ -183,43 +178,8 @@ fun ImageUploadScreen(
             )
         }
 
-        FormField("Unit ID", unitId, { unitId = it }, ImeAction.Next)
-        FormField("Printer name", printerName, { printerName = it }, ImeAction.Next)
-        FormField("User data", userData, { userData = it }, ImeAction.Done)
-
-        Button(
-            onClick = {
-                viewModel.uploadCapturedPhoto(
-                    unitId = unitId.trim(),
-                    printerName = printerName.trim(),
-                    userData = userData.trim(),
-                )
-            },
-            enabled = photo != null && !isCameraOpen && formComplete && !isUploading,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(if (isUploading) "Uploading…" else "Upload")
-        }
-
         ImageUploadStatus(uiState)
     }
-}
-
-@Composable
-private fun FormField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    imeAction: ImeAction,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = imeAction),
-        modifier = Modifier.fillMaxWidth(),
-    )
 }
 
 @Composable
